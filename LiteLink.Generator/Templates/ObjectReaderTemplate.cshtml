@@ -1,0 +1,93 @@
+@inherits RazorBlade.PlainTextTemplate<LiteLink.Generators.Emit.ObjectSerializerModel>
+@namespace LiteLink.Generators.Templates
+@using LiteLink.Generators.Emit
+@using System.Linq
+        public static @Model.TypeDisplay Read@(Model.FuncName)(this ref LiteReader reader)
+        {
+@if (Model.IsValueType)
+{
+    @:            reader.ReadByte(); //struct will always have a value
+}
+else
+{
+    @:            if (reader.ReadByte() == 0)
+    @:                return null;
+}
+            var obj = new @(Model.TypeDisplay)();
+@foreach (var p in Model.Properties)
+{
+    var target = "obj." + p.Name;
+
+    if (p.Kind == PropertyKind.Normal)
+    {
+    @:            //@(p.Name), type: Normal
+    @:            @(target) = @(TemplateHelpers.ReadCall(p.TypeKey));
+    }
+    else if (p.Kind == PropertyKind.Nullable)
+    {
+    @:            //@(p.Name), type: Nullable
+    @:            if (reader.ReadByte() == 1) {
+    @:                @(target) = @(TemplateHelpers.ReadCall(p.TypeKey));
+    @:            }
+    }
+    else if (p.Kind == PropertyKind.Array)
+    {
+    @:            //@(p.Name), type: Array
+        if (p.IsByteArray)
+        {
+    @:            @(target) = reader.ReadByteArray();
+        }
+        else
+        {
+    @:            {
+    @:            var len = reader.ReadLength();
+    @:            if (len == ulong.MaxValue)
+    @:                @(target) = default;
+    @:            else {
+    @:                @(target) = new @(TemplateHelpers.TrueName(p.TypeKey))[len];
+    @:                for (uint i = 0; i < len; i++) {
+    @:                    @(target)[i] = @(TemplateHelpers.ReadCall(p.TypeKey));
+    @:                }
+    @:            }
+    @:            }
+        }
+    }
+    else if (p.Kind == PropertyKind.List)
+    {
+    @:            //@(p.Name), type: List
+    @:            {
+    @:            var len = reader.ReadLength();
+    @:            if (len == ulong.MaxValue)
+    @:                @(target) = default;
+    @:            else {
+    @:                @(target) = new List<@(TemplateHelpers.TrueName(p.TypeKey))>(unchecked((int)len));
+    @:                for (uint i = 0; i < len; i++) {
+    @:                    @(target).Add(@(TemplateHelpers.ReadCall(p.TypeKey)));
+    @:                }
+    @:            }
+    @:            }
+    }
+    else if (p.Kind == PropertyKind.Tuple)
+    {
+    @:            //@(p.Name), type: Tuple
+    @:            @(target) = new System.ValueTuple<@(string.Join(",", p.TupleTypeKeys.Select(x => TemplateHelpers.TrueName(x))))>(@(string.Join(", ", p.TupleTypeKeys.Select(x => TemplateHelpers.ReadCall(x)))));
+    }
+    else
+    {
+    @:            //@(p.Name), type: Dictionary
+    @:            {
+    @:            var len = reader.ReadLength();
+    @:            if (len == ulong.MaxValue)
+    @:                @(target) = default;
+    @:            else {
+    @:                @(target) = new Dictionary<@(TemplateHelpers.TrueName(p.KeyTypeKey)), @(TemplateHelpers.TrueName(p.ValueTypeKey))>(unchecked((int)len));
+    @:                for (uint i = 0; i < len; i++) {
+    @:                    var key = @(TemplateHelpers.ReadCall(p.KeyTypeKey));
+    @:                    @(target)[key] = @(TemplateHelpers.ReadCall(p.ValueTypeKey));
+    @:                }
+    @:            }
+    @:            }
+    }
+}
+            return obj;
+        }

@@ -1,0 +1,71 @@
+@inherits RazorBlade.PlainTextTemplate<LiteLink.Generators.Emit.SerializerFileModel>
+@namespace LiteLink.Generators.Templates
+@using LiteLink.Generators.Emit
+using System.Runtime.CompilerServices;
+using System.Reflection;
+
+@foreach (var typedef in Model.Typedefs)
+{
+@:@(typedef)
+}
+
+namespace LiteLink.Shared.Serializer {
+    public static class LiteExtensions
+    {
+        [ModuleInitializer]
+        internal static void __Initializer() {
+@{
+    @:            LiteSerializer.AddWriter<bool>(LiteWriter.WriteBoolean);
+    @:            LiteSerializer.AddReader<bool>(LiteReader.ReadBoolean);
+    @:            LiteSerializer.AddWriter<sbyte>(LiteWriter.WriteSByte);
+    @:            LiteSerializer.AddReader<sbyte>(LiteReader.ReadSByte);
+    @:            LiteSerializer.AddWriter<byte>(LiteWriter.WriteByte);
+    @:            LiteSerializer.AddReader<byte>(LiteReader.ReadByte);
+    @:            LiteSerializer.AddWriter<short>(LiteWriter.WriteInt16);
+    @:            LiteSerializer.AddReader<short>(LiteReader.ReadInt16);
+    @:            LiteSerializer.AddWriter<ushort>(LiteWriter.WriteUInt16);
+    @:            LiteSerializer.AddReader<ushort>(LiteReader.ReadUInt16);
+    @:            LiteSerializer.AddWriter<int>(LiteWriter.WriteInt32);
+    @:            LiteSerializer.AddReader<int>(LiteReader.ReadInt32);
+    @:            LiteSerializer.AddWriter<uint>(LiteWriter.WriteUInt32);
+    @:            LiteSerializer.AddReader<uint>(LiteReader.ReadUInt32);
+    @:            LiteSerializer.AddWriter<long>(LiteWriter.WriteInt64);
+    @:            LiteSerializer.AddReader<long>(LiteReader.ReadInt64);
+    @:            LiteSerializer.AddWriter<ulong>(LiteWriter.WriteUInt64);
+    @:            LiteSerializer.AddReader<ulong>(LiteReader.ReadUInt64);
+    @:            LiteSerializer.AddWriter<float>(LiteWriter.WriteSingle);
+    @:            LiteSerializer.AddReader<float>(LiteReader.ReadSingle);
+    @:            LiteSerializer.AddWriter<double>(LiteWriter.WriteDouble);
+    @:            LiteSerializer.AddReader<double>(LiteReader.ReadDouble);
+    @:            LiteSerializer.AddWriter<string>(LiteWriter.WriteString);
+    @:            LiteSerializer.AddReader<string>(LiteReader.ReadString);
+    @:            LiteSerializer.AddWriter<decimal>(LiteWriter.WriteDecimal);
+    @:            LiteSerializer.AddReader<decimal>(LiteReader.ReadDecimal);
+    @:            LiteSerializer.AddWriter<DateTime>(LiteWriter.WriteDateTime);
+    @:            LiteSerializer.AddReader<DateTime>(LiteReader.ReadDateTime);
+    @:            LiteSerializer.AddWriter<Guid>(LiteWriter.WriteGuid);
+    @:            LiteSerializer.AddReader<Guid>(LiteReader.ReadGuid);
+}
+@foreach (var registration in Model.Registrations)
+{
+    @:            LiteSerializer.AddWriter<@(registration.TypeDisplay)>(Write@(registration.FuncName));
+    @:            LiteSerializer.AddReader<@(registration.TypeDisplay)>(Read@(registration.FuncName));
+}
+@foreach (var clientRegistration in Model.ClientRegistrations)
+{
+    @:            LiteLink.Client.GeneratedClientSerializers.Register(typeof(@(clientRegistration.TypeDisplay)), @(clientRegistration.FingerprintLiteral));
+}
+@(Model.ServerInitializer)
+        }
+
+@foreach (var writerFunction in Model.WriterFunctions)
+{
+@:@(writerFunction)
+}
+
+@foreach (var readerFunction in Model.ReaderFunctions)
+{
+@:@(readerFunction)
+}
+    }
+}

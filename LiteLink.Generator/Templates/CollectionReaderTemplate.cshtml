@@ -1,0 +1,28 @@
+@inherits RazorBlade.PlainTextTemplate<LiteLink.Generators.Emit.CollectionSerializerModel>
+@namespace LiteLink.Generators.Templates
+@using LiteLink.Generators.Emit
+        public static @Model.TypeDisplay Read@(Model.FuncName)(this ref LiteReader reader)
+        {
+            {
+            var len = reader.ReadLength();
+            if (len == ulong.MaxValue)
+                return null;
+            else {
+@if (Model.IsList)
+{
+    @:                var obj = new List<@(Model.SubTypeTrueName)>(unchecked((int)len));
+    @:                for (uint i = 0; i < len; i++) {
+    @:                    obj.Add(@(TemplateHelpers.ReadCall(Model.SubTypeKey)));
+    @:                }
+}
+else
+{
+    @:                var obj = new @(Model.SubTypeTrueName)[len];
+    @:                for (uint i = 0; i < len; i++) {
+    @:                    obj[i] = @(TemplateHelpers.ReadCall(Model.SubTypeKey));
+    @:                }
+}
+            return obj;
+            }
+            }
+        }

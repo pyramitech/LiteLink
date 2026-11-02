@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Description>LiteLink .NET client transport over named pipes (Windows and Linux).</Description>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LiteLink.Client\LiteLink.Client.csproj" />
+  </ItemGroup>
+
+  <Import Project="..\LiteLink.Transport.Shared\LiteLink.Transport.Shared.projitems" Label="Shared" />
+
+</Project>

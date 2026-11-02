@@ -1,0 +1,34 @@
+<Project>
+
+  <!-- Projects that set <PackGenerator>true</PackGenerator> ship LiteLink.Generator inside their
+       package under analyzers/dotnet/cs, the layout the compiler picks source generators up
+       from. The generator is built first through the ProjectReference; ReferenceOutputAssembly
+       is off because the runtime assembly never references it. -->
+
+  <ItemGroup Condition="'$(PackGenerator)' == 'true'">
+    <ProjectReference Include="$(MSBuildThisFileDirectory)LiteLink.Generator\LiteLink.Generator.csproj"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(PackGenerator)' == 'true'">
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_LiteLinkPackGenerator</TargetsForTfmSpecificContentInPackage>
+  </PropertyGroup>
+
+  <Target Name="_LiteLinkPackGenerator">
+    <!-- pack runs inside the per-framework build, where TargetFramework is a global property;
+         it must not leak into the generator project (netstandard2.0) -->
+    <MSBuild Projects="$(MSBuildThisFileDirectory)LiteLink.Generator\LiteLink.Generator.csproj"
+             Targets="GetTargetPath"
+             Properties="Configuration=$(Configuration)"
+             RemoveProperties="TargetFramework;TargetFrameworks;RuntimeIdentifier">
+      <Output TaskParameter="TargetOutputs" ItemName="_LiteLinkGeneratorAssembly" />
+    </MSBuild>
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="@(_LiteLinkGeneratorAssembly)" PackagePath="analyzers/dotnet/cs" />
+      <!-- NuGet imports build/<PackageId>.targets into every consumer: dedupes the generator
+           when a project references both packages -->
+      <TfmSpecificPackageFile Include="$(MSBuildThisFileDirectory)build\LiteLink.Generator.targets" PackagePath="build/$(PackageId).targets" />
+    </ItemGroup>
+  </Target>
+
+</Project>

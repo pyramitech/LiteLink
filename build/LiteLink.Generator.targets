@@ -1,0 +1,20 @@
+<Project>
+
+  <!-- Shipped inside the LiteLink and LiteLink.Client packages as build/<PackageId>.targets.
+       Both packages carry the LiteLink.Generator analyzer; a project that references both (a
+       process that is a server and a client of another server) would otherwise run the generator
+       twice and fail on the duplicated output. Keep one copy, drop the rest. -->
+
+  <Target Name="LiteLinkDedupeGenerator" AfterTargets="ResolveLockFileAnalyzers" BeforeTargets="CoreCompile">
+    <ItemGroup>
+      <_LiteLinkGeneratorCopy Include="@(Analyzer)" Condition="'%(Filename)%(Extension)' == 'LiteLink.Generator.dll'" />
+    </ItemGroup>
+    <PropertyGroup>
+      <_LiteLinkGeneratorKeep Condition="'$(_LiteLinkGeneratorKeep)' == ''">%(_LiteLinkGeneratorCopy.Identity)</_LiteLinkGeneratorKeep>
+    </PropertyGroup>
+    <ItemGroup>
+      <Analyzer Remove="@(_LiteLinkGeneratorCopy)" Condition="'%(Identity)' != '$(_LiteLinkGeneratorKeep)'" />
+    </ItemGroup>
+  </Target>
+
+</Project>

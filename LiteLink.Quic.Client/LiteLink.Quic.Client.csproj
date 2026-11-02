@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Description>LiteLink .NET client transport over QUIC; requires msquic on the host.</Description>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <!-- System.Net.Quic is platform-annotated (win/linux/macos); Connect guards at
+         runtime via QuicConnection.IsSupported, which CA1416 can't see -->
+    <NoWarn>$(NoWarn);CA1416</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LiteLink.Client\LiteLink.Client.csproj" />
+  </ItemGroup>
+
+  <Import Project="..\LiteLink.Transport.Shared\LiteLink.Transport.Shared.projitems" Label="Shared" />
+
+</Project>

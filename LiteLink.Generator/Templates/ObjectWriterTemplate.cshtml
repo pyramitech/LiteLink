@@ -1,0 +1,85 @@
+@inherits RazorBlade.PlainTextTemplate<LiteLink.Generators.Emit.ObjectSerializerModel>
+@namespace LiteLink.Generators.Templates
+@using LiteLink.Generators.Emit
+        public static void Write@(Model.FuncName)(this ref LiteWriter writer, @Model.TypeDisplay obj)
+        {
+@if (Model.IsValueType)
+{
+    @:            writer.WriteByte(1); //struct will always have a value
+}
+else
+{
+    @:            if (obj == null)
+    @:            {
+    @:                writer.WriteByte(0);
+    @:                return;
+    @:            }
+    @:            writer.WriteByte(1);
+}
+@foreach (var p in Model.Properties)
+{
+    var target = "obj." + p.Name;
+
+    if (p.Kind == PropertyKind.Normal)
+    {
+    @:            //@(p.Name), type: Normal
+    @:            @(TemplateHelpers.WriteCall(p.TypeKey, target))
+    }
+    else if (p.Kind == PropertyKind.Nullable)
+    {
+    @:            //@(p.Name), type: Nullable
+    @:            if (@(target).HasValue) {
+    @:                writer.WriteByte(1);
+    @:                @(TemplateHelpers.WriteCall(p.TypeKey, target + ".Value"))
+    @:            }
+    @:            else {
+    @:                writer.WriteByte(0);
+    @:            }
+    }
+    else if (p.Kind == PropertyKind.Array || p.Kind == PropertyKind.List)
+    {
+        var lengthName = p.Kind == PropertyKind.Array ? "Length" : "Count";
+    @:            //@(p.Name), type: Collection
+        if (p.IsByteArray)
+        {
+    @:            writer.WriteByteArray(@(target));
+        }
+        else
+        {
+    @:            if (@(target) == null) {
+    @:                writer.WriteLength(ulong.MaxValue);
+    @:            }
+    @:            else {
+    @:                writer.WriteLength((ulong)@(target).@(lengthName));
+    @:                for (int i = 0; i < @(target).@(lengthName); i++)
+    @:                {
+    @:                    @(TemplateHelpers.WriteCall(p.TypeKey, target + "[i]"))
+    @:                }
+    @:            }
+        }
+    }
+    else if (p.Kind == PropertyKind.Tuple)
+    {
+    @:            //@(p.Name), type: Tuple
+        for (int i = 0; i < p.TupleTypeKeys.Length; i++)
+        {
+    @:            @(TemplateHelpers.WriteCall(p.TupleTypeKeys[i], target + ".Item" + (i + 1)))
+        }
+    }
+    else
+    {
+    @:            //@(p.Name), type: Dictionary
+    @:            if (@(target) == null) {
+    @:                writer.WriteLength(ulong.MaxValue);
+    @:            }
+    @:            else {
+    @:                writer.WriteLength((ulong)@(target).Count);
+    @:                foreach (var kvp in @(target))
+    @:                {
+    @:                    @(TemplateHelpers.WriteCall(p.KeyTypeKey, "kvp.Key"))
+    @:                    @(TemplateHelpers.WriteCall(p.ValueTypeKey, "kvp.Value"))
+    @:                }
+    @:            }
+    }
+}
+        }

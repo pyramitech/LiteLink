@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
+    <PackageReference Include="xunit" Version="2.4.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LiteLink\LiteLink.csproj" />
+    <!-- the client compiles its own copy of the shared serializer sources, the alias keeps
+         its types out of the global namespace so they don't collide with the server's -->
+    <ProjectReference Include="..\LiteLink.Client\LiteLink.Client.csproj" Aliases="client" />
+    <!-- real-socket transports, exercised end-to-end against the same singleton server -->
+    <ProjectReference Include="..\LiteLink.Tcp\LiteLink.Tcp.csproj" />
+    <ProjectReference Include="..\LiteLink.Tcp.Client\LiteLink.Tcp.Client.csproj" />
+    <ProjectReference Include="..\LiteLink.Quic\LiteLink.Quic.csproj" />
+    <ProjectReference Include="..\LiteLink.Quic.Client\LiteLink.Quic.Client.csproj" />
+    <ProjectReference Include="..\LiteLink.Gateway\LiteLink.Gateway.csproj" />
+    <ProjectReference Include="..\LiteLink.Pipes\LiteLink.Pipes.csproj" />
+    <ProjectReference Include="..\LiteLink.Pipes.Client\LiteLink.Pipes.Client.csproj" />
+    <!-- the generator runs on THIS assembly: TestRpcSurface.cs declares a real [RpcServer],
+         so the tests exercise the actual generated serializers, handshake and procedure table -->
+    <ProjectReference Include="..\LiteLink.Generator\LiteLink.Generator.csproj"
+                   OutputItemType="Analyzer"
+                   ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+</Project>

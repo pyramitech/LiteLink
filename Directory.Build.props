@@ -1,0 +1,46 @@
+<Project>
+
+  <!-- Shared build and NuGet metadata for every project in the solution. Test, benchmark and
+       shared (.shproj) projects opt out of packing themselves; everything else produces a package
+       under artifacts/packages when packed (see pack.ps1). -->
+
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+    <Authors>Pyrami Technologies</Authors>
+    <Company>Pyrami Technologies</Company>
+    <Copyright>Copyright (c) Pyrami Technologies</Copyright>
+    <Product>LiteLink</Product>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>rpc;serialization;binary;signalr;tcp;quic;named-pipes;source-generator</PackageTags>
+    <!-- fill these in once the public repository exists; both are optional for packing. Until
+         RepositoryUrl is set, no repository/commit metadata is written into the packages (with
+         PublishRepositoryUrl on, SourceLink would otherwise record whatever git remote the
+         packing checkout happens to have). -->
+    <PackageProjectUrl></PackageProjectUrl>
+    <RepositoryUrl></RepositoryUrl>
+    <RepositoryType Condition="'$(RepositoryUrl)' != ''">git</RepositoryType>
+    <PackageOutputPath>$(MSBuildThisFileDirectory)artifacts\packages\</PackageOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- symbols and reproducible builds: SourceLink is built into the SDK, it only needs the
+         repository metadata above and a git checkout -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PublishRepositoryUrl Condition="'$(RepositoryUrl)' != ''">true</PublishRepositoryUrl>
+    <EnableSourceControlManagerQueries Condition="'$(RepositoryUrl)' == ''">false</EnableSourceControlManagerQueries>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true' or '$(TF_BUILD)' == 'true'">true</ContinuousIntegrationBuild>
+    <!-- XML docs ship in the packages so IntelliSense shows the member documentation;
+         members without a doc comment are not an error -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(IsPackable)' != 'false'">
+    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" Visible="false" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,11 @@
+@inherits RazorBlade.PlainTextTemplate<LiteLink.Generators.Emit.NullableSerializerModel>
+@namespace LiteLink.Generators.Templates
+@using LiteLink.Generators.Emit
+        public static @Model.TypeDisplay Read@(Model.FuncName)(this ref LiteReader reader)
+        {
+            if (reader.ReadByte() == 0)
+                return null;
+            var obj = new @(Model.TypeDisplay)();
+            obj = @(TemplateHelpers.ReadCall(Model.SubTypeKey));
+            return obj;
+        }

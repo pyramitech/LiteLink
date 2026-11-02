@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Description>LiteLink raw TCP transport with optional TLS; standalone, no ASP.NET Core required. Also the host for LiteLink.Gateway.</Description>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LiteLink\LiteLink.csproj" />
+  </ItemGroup>
+
+  <Import Project="..\LiteLink.Transport.Shared\LiteLink.Transport.Shared.projitems" Label="Shared" />
+
+</Project>

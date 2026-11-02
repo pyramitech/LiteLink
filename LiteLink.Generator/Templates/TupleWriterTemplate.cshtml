@@ -1,0 +1,10 @@
+@inherits RazorBlade.PlainTextTemplate<LiteLink.Generators.Emit.TupleSerializerModel>
+@namespace LiteLink.Generators.Templates
+@using LiteLink.Generators.Emit
+        public static void Write@(Model.FuncName)(this ref LiteWriter writer, @Model.TypeDisplay obj)
+        {
+@for (int i = 0; i < Model.ElementTypeKeys.Length; i++)
+{
+    @:            @(TemplateHelpers.WriteCall(Model.ElementTypeKeys[i], "obj.Item" + (i + 1)))
+}
+        }

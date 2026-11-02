@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <Description>LiteLink server core: RpcServer, connection links, permissions, middleware and the binary serializer. Brings the LiteLink.Generator source generator along, so referencing this package is all a server needs.</Description>
+  </PropertyGroup>
+
+  <Import Project="..\LiteLink.Shared\LiteLink.Shared.projitems" Label="Shared" />
+
+  <Import Project="..\LiteLink.Shared.Func\LiteLink.Shared.Func.projitems" Label="Shared" />
+
+  <ItemGroup>
+    <PackageReference Include="K4os.Compression.LZ4" Version="1.3.6" />
+  </ItemGroup>
+
+  <!-- the source generator ships inside this package (analyzers/dotnet/cs, see
+       Directory.Build.targets), so a single PackageReference gives consumers both -->
+  <PropertyGroup>
+    <PackGenerator>true</PackGenerator>
+  </PropertyGroup>
+
+</Project>

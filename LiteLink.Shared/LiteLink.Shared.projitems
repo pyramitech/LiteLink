@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>db5e5a90-68be-4f44-b0b4-193056576bde</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>LiteLink.Shared</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)RpcFunc.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RpcLink.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IConnection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProcedureHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Serializer\Buffer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Serializer\LiteReader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Serializer\LiteCompression.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Serializer\LiteSerializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Serializer\LiteWriter.cs" />
+  </ItemGroup>
+</Project>

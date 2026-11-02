@@ -1,0 +1,13 @@
+@inherits RazorBlade.PlainTextTemplate<LiteLink.Generators.Emit.NullableSerializerModel>
+@namespace LiteLink.Generators.Templates
+@using LiteLink.Generators.Emit
+        public static void Write@(Model.FuncName)(this ref LiteWriter writer, @Model.TypeDisplay obj)
+        {
+            if (obj == null)
+            {
+                writer.WriteByte(0);
+                return;
+            }
+            writer.WriteByte(1);
+            @(TemplateHelpers.WriteCall(Model.SubTypeKey, "obj.Value"))
+        }

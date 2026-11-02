@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Description>LiteLink SignalR transport for ASP.NET Core: hosts the RpcServer on a SignalR hub (AddLiteLinkProtocol / UseLiteLink), the transport browsers and the litelink-web TypeScript client connect through.</Description>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\LiteLink\LiteLink.csproj" />
+  </ItemGroup>
+  
+  <Import Project="..\LiteLink.SignalR.Shared\LiteLink.SignalR.Shared.projitems" Label="Shared" />
+
+</Project>

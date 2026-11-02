@@ -1,0 +1,199 @@
+@inherits RazorBlade.PlainTextTemplate<LiteLink.Generators.Emit.ServerInitModel>
+@namespace LiteLink.Generators.Templates
+@using LiteLink.Generators.Emit
+            var server = new LiteLink.RpcServer<@(Model.LinkType)>();
+@foreach (var group in Model.PermissionGroups)
+{
+    @:            server.__addPermissionGroup("@(group.Name)", new LiteLink.PermissionBitmask(@(group.Mask1)UL, @(group.Mask2)UL));
+}
+@foreach (var proc in Model.Procedures)
+{
+    var invokeArgs = proc.HasArg ? "(link, obj);" : "(link);";
+
+    @:            server.__addProcedure((ushort)@(proc.Opcode), new LiteLink.PermissionBitmask(@(proc.PermissionMask1)UL, @(proc.PermissionMask2)UL), "@(proc.RpcName)", @(proc.Compresses ? "true" : "false"),
+    @:            (LiteLink.RpcServer<@(Model.LinkType)>.ProcedureProcessorDelegate)((@(Model.LinkType) link, ref LiteReader reader) => {
+    if (proc.HasArg)
+    {
+    @:                var obj = LiteLink.Shared.Serializer.LiteSerializer.Deserialize<@(proc.ArgTypeDisplay)>(ref reader);
+    }
+    if (proc.ReturnKind == ProcedureReturnKind.Void)
+    {
+    @:                @(proc.MethodName)@(invokeArgs)
+    @:                var writer = new LiteWriter();
+    @:                writer.WriteByte((byte)ErrorCodes.Success);
+    @:                writer.WriteByte(0); //@(proc.HasArg ? "not compressed" : "isCompressed placeholder")
+    @:                return Task.FromResult<byte[]>(writer.Close());
+    }
+    else if (proc.ReturnKind == ProcedureReturnKind.Task)
+    {
+    @:                return Task.Run(async () => {
+    @:                    await @(proc.MethodName)@(invokeArgs)
+    @:                    var resWrite = () => { var writer = new LiteWriter();
+    @:                    writer.WriteByte((byte)ErrorCodes.Success);
+    @:                    writer.WriteByte(0); //@(proc.HasArg ? "not compressed" : "isCompressed placeholder")
+    @:                    return writer.Close(); };
+    @:                    return resWrite();
+    @:                });
+    }
+    else if (proc.ReturnKind == ProcedureReturnKind.TaskWithValue)
+    {
+    @:                return Task.Run(async () => {
+    @:                    var res = await @(proc.MethodName)@(invokeArgs)
+    @:                    var resWrite = (@(proc.ReturnTypeDisplay) data) => { var writer = new LiteWriter();
+    @:                    writer.WriteByte((byte)ErrorCodes.Success);
+    @:                    writer.WriteByte(0); //isCompressed placeholder
+    @:                    LiteLink.Shared.Serializer.LiteSerializer.Serialize(ref writer, data);
+    @:                    return writer.Close(); }; //compression is applied by the server at the exit boundary
+    @:                    return resWrite(res);
+    @:                });
+    }
+    else
+    {
+    @:                var res = @(proc.MethodName)@(invokeArgs)
+    @:                var writer = new LiteWriter();
+    @:                writer.WriteByte((byte)ErrorCodes.Success);
+    @:                writer.WriteByte(0); //isCompressed placeholder
+    @:                LiteLink.Shared.Serializer.LiteSerializer.Serialize(ref writer, res);
+    @:                return Task.FromResult<byte[]>(writer.Close()); //compression is applied by the server at the exit boundary
+    }
+    @:            }));
+}
+            //Generate mappings for handshake response
+            var writer = new LiteWriter();
+            writer.WriteByte(0);
+            writer.WriteByte(0); //isCompressed placeholder, Close(2) sets it only when it actually compresses
+            //Size of property name index
+            writer.WriteByte(@(Model.PropertyIndexBytes));
+            //Amount of property names
+            writer.WriteUInt32(@(Model.PropertyNames.Count));
+@foreach (var name in Model.PropertyNames)
+{
+    @:            writer.WriteString("@(name)");
+}
+            //Size of type index
+            writer.WriteByte(@(Model.TypeIndexBytes));
+            //Amount of types
+            writer.WriteUInt32(@(Model.Types.Count));
+@foreach (var type in Model.Types)
+{
+    @:            server.__addTypeMap(typeof(@(type.DecodedName)), (uint)@(type.Index));
+    if (type.Kind == TypeEntryKind.PropertyMap)
+    {
+    @:            //Type (@(type.Index)) @(type.Key) has @(type.Properties.Count) properties
+    @:            writer.WriteUInt16(@(type.Properties.Count));
+        foreach (var prop in type.Properties)
+        {
+    @:            //Found property (@(prop.LocalIndex)) @(prop.Name) with property index @(prop.PropertyNameIndex)
+    @:            writer.@(Model.PropertyIndexMethod)(@(prop.PropertyNameIndex));
+    @:            //With type index @(prop.TypeIndex) (@(prop.TypeIndexKey))
+    @:            writer.@(Model.TypeIndexMethod)(@(prop.TypeIndex));
+    @:            //With storage type @(prop.StorageType)
+    @:            writer.WriteByte(@(prop.StorageType));
+        }
+    }
+    else
+    {
+    @:            //Type (@(type.Index)) @(type.Key) does not have a property map
+    @:            writer.WriteUInt16(0xffff);
+        if (type.Kind == TypeEntryKind.Dictionary)
+        {
+    @:            //This is a dictionary
+    @:            writer.WriteByte(1);
+    @:            //Key is of type: @(type.KeyTypeKey)
+    @:            writer.@(Model.TypeIndexMethod)(@(type.KeyTypeIndex));
+    @:            //Value is of type: @(type.ValueTypeKey)
+    @:            writer.@(Model.TypeIndexMethod)(@(type.ValueTypeIndex));
+        }
+        else if (type.Kind == TypeEntryKind.Tuple)
+        {
+    @:            //This is a Tuple
+    @:            writer.WriteByte(3);
+    @:            //Number of tuple parameters
+    @:            writer.WriteByte(@(type.TupleElements.Count));
+            foreach (var element in type.TupleElements)
+            {
+    @:            //Parameter @(element.Position) is of type @(element.Key)
+    @:            writer.@(Model.TypeIndexMethod)(@(element.TypeIndex));
+            }
+        }
+        else if (type.Kind == TypeEntryKind.Collection)
+        {
+    @:            //This is @(type.IsArray ? "an array" : "a list") of type @(type.SubTypeKey)
+    @:            writer.WriteByte(2);
+    @:            writer.@(Model.TypeIndexMethod)(@(type.SubTypeIndex));
+        }
+        else if (type.Kind == TypeEntryKind.Nullable)
+        {
+    @:            //This is a nullable of type @(type.SubTypeKey)
+    @:            writer.WriteByte(4);
+    @:            writer.@(Model.TypeIndexMethod)(@(type.SubTypeIndex));
+        }
+        else
+        {
+    @:            //This is a base type: @(type.Key)
+    @:            writer.WriteByte(0);
+    @:            writer.WriteString("@(type.Key)");
+        }
+    }
+}
+            //Size of function hash
+            writer.WriteByte(@(Model.FunctionCrcBytes));
+            //Function count
+            writer.WriteUInt16(@(Model.Functions.Count));
+@foreach (var func in Model.Functions)
+{
+    @:            //Opcode
+    @:            writer.WriteUInt16(@(func.Opcode));
+    @:            writer.@(Model.FuncCrcMethod)(@(func.CrcValue));
+    @:            //Has parameters
+    if (func.ArgTypeIndex == null)
+    {
+    @:            writer.WriteByte(0);
+    }
+    else
+    {
+    @:            writer.WriteByte(1);
+    @:            //Type index
+    @:            writer.@(Model.TypeIndexMethod)(@(func.ArgTypeIndex.Value));
+    }
+    @:            //Has return value
+    if (func.RetTypeIndex == null)
+    {
+    @:            writer.WriteByte(0);
+    }
+    else
+    {
+    @:            writer.WriteByte(1);
+    @:            //Type index
+    @:            writer.@(Model.TypeIndexMethod)(@(func.RetTypeIndex.Value));
+    }
+}
+            //Size of permission hash
+            writer.WriteByte(@(Model.PermissionCrcBytes));
+            //Permission count
+            writer.WriteUInt16(@(Model.PermissionCount));
+@foreach (var crc in Model.PermissionCrcValues)
+{
+    @:            writer.@(Model.PermCrcMethod)(@(crc));
+}
+            //End of handshake
+            LiteLink.RpcServer.HandshakeResponse = writer.Close(2);
+@if (Model.ShowApi)
+{
+    @:            //Pregenerated API info, served on system opcode 0 type 2
+    @:            var apiWriter = new LiteWriter();
+    @:            apiWriter.WriteByte((byte)ErrorCodes.Success);
+    @:            apiWriter.WriteByte(0); //isCompressed placeholder
+    @:            apiWriter.WriteUInt16(@(Model.Functions.Count));
+    foreach (var func in Model.Functions)
+    {
+    @:            apiWriter.WriteString("@(func.Name)");
+    @:            apiWriter.WriteString("@(func.ArgName)");
+    @:            apiWriter.WriteString("@(func.RetName)");
+    }
+    @:            LiteLink.RpcServer.ApiInfoResponse = apiWriter.Close(2);
+    if (Model.ApiPasswordLiteral != null)
+    {
+    @:            LiteLink.RpcServer.ApiInfoPassword = @(Model.ApiPasswordLiteral);
+    }
+}

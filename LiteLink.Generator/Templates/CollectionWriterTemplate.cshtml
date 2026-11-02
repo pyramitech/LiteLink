@@ -1,0 +1,17 @@
+@inherits RazorBlade.PlainTextTemplate<LiteLink.Generators.Emit.CollectionSerializerModel>
+@namespace LiteLink.Generators.Templates
+@using LiteLink.Generators.Emit
+@{ var count = "obj." + (Model.IsList ? "Count" : "Length"); }
+        public static void Write@(Model.FuncName)(this ref LiteWriter writer, @Model.TypeDisplay obj)
+        {
+            if (obj == null) {
+                writer.WriteLength(ulong.MaxValue);
+            }
+            else {
+                writer.WriteLength((ulong)@(count));
+                for (int i = 0; i < @(count); i++)
+                {
+                    @(TemplateHelpers.WriteCall(Model.SubTypeKey, "obj[i]"))
+                }
+            }
+        }
