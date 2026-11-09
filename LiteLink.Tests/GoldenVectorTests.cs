@@ -5,7 +5,7 @@ namespace LiteLink.Tests
 {
     /// <summary>
     /// Golden wire-format vectors. The same hex strings are asserted by the TypeScript client's
-    /// test suite (TypescriptClient/LiteLink/tests) — together they pin the wire format across
+    /// test suite (golden.test.ts) — together they pin the wire format across
     /// platforms. If a test here fails after an intentional format change, regenerate the vectors
     /// and update BOTH suites.
     /// </summary>

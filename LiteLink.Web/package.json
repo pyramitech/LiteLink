@@ -1,6 +1,6 @@
 {
   "name": "litelink-web",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "TypeScript/browser client for LiteLink, the RPC framework with a compact binary serialization format: handshake-driven serializers, multichannel calls, request batching and server push over SignalR.",
   "keywords": [
     "litelink",

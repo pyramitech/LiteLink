@@ -53,7 +53,7 @@ Clients are fully dynamic. At connect time the server sends a handshake describi
 
 ## Requirements
 
-- .NET 9.0 for all runtime projects. The source generator itself targets netstandard2.0, as required by Roslyn.
+- .NET 10.0 for all runtime projects. The source generator itself targets netstandard2.0, as required by Roslyn.
 - QUIC additionally requires msquic and TLS 1.3 support: Windows 11 / Windows Server 2022 or newer, or Linux with `libmsquic` installed. Check availability at runtime with `LiteLinkQuicServer.IsSupported`.
 - The TypeScript client requires a bundler-based environment for the browser (`lz4-wasm` is a WebAssembly module). Under Node, alias `lz4-wasm` to `lz4-wasm-nodejs`.
 

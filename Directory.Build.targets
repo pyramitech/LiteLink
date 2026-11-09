@@ -1,9 +1,9 @@
 <Project>
 
-  <!-- Projects that set <PackGenerator>true</PackGenerator> ship LiteLink.Generator inside their
-       package under analyzers/dotnet/cs, the layout the compiler picks source generators up
-       from. The generator is built first through the ProjectReference; ReferenceOutputAssembly
-       is off because the runtime assembly never references it. -->
+  <!-- Projects with PackGenerator=true (set per project in Directory.Build.props) ship
+       LiteLink.Generator inside their package under analyzers/dotnet/cs, the layout the compiler
+       picks source generators up from. The generator is built first through the ProjectReference;
+       ReferenceOutputAssembly is off because the runtime assembly never references it. -->
 
   <ItemGroup Condition="'$(PackGenerator)' == 'true'">
     <ProjectReference Include="$(MSBuildThisFileDirectory)LiteLink.Generator\LiteLink.Generator.csproj"

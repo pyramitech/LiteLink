@@ -95,7 +95,7 @@ namespace LiteLink.Tests
         [RpcFunc("EchoNullableList")]
         public static async Task<List<int?>> EchoNullableList(TestLink link, List<int?> values)
         {
-            await Task.Delay(10); //async so the response is written from a continuation, like WebTest's ReturnTaskWithValueNoArg
+            await Task.Delay(10); //async so the response is written from a continuation rather than inline
             return values;
         }
     }

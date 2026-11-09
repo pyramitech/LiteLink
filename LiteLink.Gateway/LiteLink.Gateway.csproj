@@ -1,8 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <Description>LiteLink protocol-transparent gateway: intercept, analyze, rewrite, reject or redirect client messages in front of one or more backend servers; plugs into the TCP and QUIC transports as the connection handler.</Description>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
   </PropertyGroup>

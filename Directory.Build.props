@@ -5,7 +5,7 @@
        under artifacts/packages when packed (see pack.ps1). -->
 
   <PropertyGroup>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Authors>Pyrami Technologies</Authors>
     <Company>Pyrami Technologies</Company>
     <Copyright>Copyright (c) Pyrami Technologies</Copyright>
@@ -42,5 +42,29 @@
   <ItemGroup Condition="'$(IsPackable)' != 'false'">
     <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" Visible="false" />
   </ItemGroup>
+
+  <!-- Per-package metadata lives here rather than in the .csproj files on purpose: the project
+       files are synced verbatim from the private development repository, while this file exists
+       only in the public one. -->
+  <PropertyGroup>
+    <!-- the generator is not a package of its own; it ships inside LiteLink and LiteLink.Client
+         as an analyzer (see Directory.Build.targets) -->
+    <IsPackable Condition="'$(MSBuildProjectName)' == 'LiteLink.Generator'">false</IsPackable>
+    <PackGenerator Condition="'$(MSBuildProjectName)' == 'LiteLink' or '$(MSBuildProjectName)' == 'LiteLink.Client'">true</PackGenerator>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Description Condition="'$(MSBuildProjectName)' == 'LiteLink'">LiteLink server core: RpcServer, connection links, permissions, middleware and the binary serializer. Brings the LiteLink.Generator source generator along, so referencing this package is all a server needs.</Description>
+    <Description Condition="'$(MSBuildProjectName)' == 'LiteLink.Client'">LiteLink .NET client: RpcClient with handshake-driven dynamic serialization, multichannel calls, batching and server push handling. Transport packages: LiteLink.Tcp.Client, LiteLink.Quic.Client, LiteLink.Pipes.Client, LiteLink.SignalR.Client. Brings the LiteLink.Generator source generator along for [assembly: RpcClientModels].</Description>
+    <Description Condition="'$(MSBuildProjectName)' == 'LiteLink.SignalR'">LiteLink SignalR transport for ASP.NET Core: hosts the RpcServer on a SignalR hub (AddLiteLinkProtocol / UseLiteLink), the transport browsers and the litelink-web TypeScript client connect through.</Description>
+    <Description Condition="'$(MSBuildProjectName)' == 'LiteLink.SignalR.Client'">LiteLink .NET client transport over SignalR (HubConnection).</Description>
+    <Description Condition="'$(MSBuildProjectName)' == 'LiteLink.Tcp'">LiteLink raw TCP transport with optional TLS; standalone, no ASP.NET Core required. Also the host for LiteLink.Gateway.</Description>
+    <Description Condition="'$(MSBuildProjectName)' == 'LiteLink.Tcp.Client'">LiteLink .NET client transport over raw TCP with optional TLS.</Description>
+    <Description Condition="'$(MSBuildProjectName)' == 'LiteLink.Quic'">LiteLink QUIC transport (always TLS 1.3, ALPN litelink); requires msquic on the host.</Description>
+    <Description Condition="'$(MSBuildProjectName)' == 'LiteLink.Quic.Client'">LiteLink .NET client transport over QUIC; requires msquic on the host.</Description>
+    <Description Condition="'$(MSBuildProjectName)' == 'LiteLink.Pipes'">LiteLink named pipe transport for same-machine IPC on Windows and Linux, with kernel-asserted peer identity and an authorization hook.</Description>
+    <Description Condition="'$(MSBuildProjectName)' == 'LiteLink.Pipes.Client'">LiteLink .NET client transport over named pipes (Windows and Linux).</Description>
+    <Description Condition="'$(MSBuildProjectName)' == 'LiteLink.Gateway'">LiteLink protocol-transparent gateway: intercept, analyze, rewrite, reject or redirect client messages in front of one or more backend servers; plugs into the TCP and QUIC transports as the connection handler.</Description>
+  </PropertyGroup>
 
 </Project>
