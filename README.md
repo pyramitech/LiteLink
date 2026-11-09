@@ -49,7 +49,7 @@ Clients are fully dynamic. At connect time the server sends a handshake describi
 | `LiteLink.Gateway` | Protocol-transparent gateway: intercept, analyze, transfer |
 | `LiteLink.Tests`, `LiteLink.Generator.Tests`, `LiteLink.ClientGen.Tests*` | Test suites (see [Building and testing](#building-and-testing)) |
 | `LiteLink.Benchmarks`, `LiteLink.Benchmarks.Host` | BenchmarkDotNet suite for the client serialization paths |
-| `LiteLink.Web` | TypeScript client (browser and Node), published on npm as `litelink-web` — not part of the solution, see [The TypeScript client](#the-typescript-client) |
+| `LiteLink.Web` | TypeScript client (browser and Node), published on npm as `@pyrami/litelink` — not part of the solution, see [The TypeScript client](#the-typescript-client) |
 
 ## Requirements
 
@@ -79,7 +79,7 @@ dotnet add package LiteLink.Tcp
 
 A single project may reference both `LiteLink` and `LiteLink.Client` (a service that also calls another LiteLink service); the packages make sure the bundled generator runs only once, and the client side goes behind an extern alias as described in [Client-side generated serializers](#client-side-generated-serializers).
 
-The TypeScript client is published on npm as `litelink-web`.
+The TypeScript client is published on npm as `@pyrami/litelink`.
 
 ## Quick start
 
@@ -164,7 +164,7 @@ var profile = await client.Send<Profile>("Users.GetProfile", null);
 ### 4. Call it from TypeScript
 
 ```ts
-import { RpcLink } from "litelink-web";
+import { RpcLink } from "@pyrami/litelink";
 
 await RpcLink.connect("https://myhost:7276/hub"); // SignalR hub URL
 
@@ -475,16 +475,16 @@ Failed calls throw with the server's error code in the message (see [Error codes
 
 ## The TypeScript client
 
-The client is published on npm as `litelink-web` (source in the `LiteLink.Web` folder):
+The client is published on npm as `@pyrami/litelink` (source in the `LiteLink.Web` folder):
 
 ```
-npm install litelink-web
+npm install @pyrami/litelink
 ```
 
 Usage (the API is static; one connection per page/process):
 
 ```ts
-import { RpcLink } from "litelink-web";
+import { RpcLink } from "@pyrami/litelink";
 
 const ok = await RpcLink.connect("https://host:7276/hub"); // 1 on success
 if (ok !== 1) throw new Error("could not connect");
@@ -588,7 +588,7 @@ await client.Start();
 ```
 
 ```ts
-import { RpcLink, RpcBatchMode } from "litelink-web";
+import { RpcLink, RpcBatchMode } from "@pyrami/litelink";
 
 RpcLink.batchMode = RpcBatchMode.Coalesce;
 RpcLink.batchWindow = 50;                  // ms, Window mode only

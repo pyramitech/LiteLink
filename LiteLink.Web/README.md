@@ -1,4 +1,4 @@
-# litelink-web
+# @pyrami/litelink
 
 TypeScript client for [LiteLink](https://www.nuget.org/packages/LiteLink), an RPC framework with a compact binary serialization format for .NET servers. The client is fully handshake-driven: at connect time the server describes its types, functions and permissions, and the client builds its serializers from that description. It never needs to be regenerated or recompiled because the server's API changed.
 
@@ -7,7 +7,7 @@ The client connects over SignalR, which makes it the browser-facing half of Lite
 ## Installation
 
 ```
-npm install litelink-web
+npm install @pyrami/litelink
 ```
 
 `lz4-wasm` (the compression codec) is a WebAssembly module, so a bundler is required in the browser. With Vite:
@@ -35,7 +35,7 @@ resolve: { alias: { "lz4-wasm": "lz4-wasm-nodejs" } }
 The API is static: one connection per page or process.
 
 ```ts
-import { RpcLink } from "litelink-web";
+import { RpcLink } from "@pyrami/litelink";
 
 const ok = await RpcLink.connect("https://host:7276/hub"); // the SignalR hub URL, 1 on success
 if (ok !== 1) throw new Error("could not connect");
@@ -85,7 +85,7 @@ The server decides per connection whether multichannel is allowed (`RpcLink.Allo
 Calls issued concurrently can be packed into one transport message. Items of a batch run sequentially on the server in request order, so earlier effects are visible to later calls:
 
 ```ts
-import { RpcLink, RpcBatchMode } from "litelink-web";
+import { RpcLink, RpcBatchMode } from "@pyrami/litelink";
 
 RpcLink.batchMode = RpcBatchMode.Coalesce; // first call goes out at once, calls made meanwhile follow as one batch
 RpcLink.batchWindow = 50;                  // ms, Window mode only: hold calls and flush them together
