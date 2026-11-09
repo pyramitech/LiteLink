@@ -1,5 +1,9 @@
 # LiteLink
 
+[![NuGet](https://img.shields.io/nuget/v/LiteLink.svg?logo=nuget&label=NuGet)](https://www.nuget.org/packages/LiteLink)
+[![npm](https://img.shields.io/npm/v/%40pyrami%2Flitelink.svg?logo=npm&label=npm)](https://www.npmjs.com/package/@pyrami/litelink)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+
 > Library primarily human written and used in production. AI was used to clean up generator code: moved StringBuilder code into .cshtml templates, built benchmarks, also found and fixed some edge cases. AI was also used for documentation and with preparing the public release. Library is pretty old at this point, at the time all the alternatives either produced much bigger payload or generated code from a special custom syntax. Primarily focused on C# <-> C# and C# <-> TS communications.
 
 

@@ -1,5 +1,9 @@
 # @pyrami/litelink
 
+[![npm](https://img.shields.io/npm/v/%40pyrami%2Flitelink.svg?logo=npm&label=npm)](https://www.npmjs.com/package/@pyrami/litelink)
+[![NuGet](https://img.shields.io/nuget/v/LiteLink.svg?logo=nuget&label=server)](https://www.nuget.org/packages/LiteLink)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://github.com/pyramitech/LiteLink/blob/master/LICENSE)
+
 TypeScript client for [LiteLink](https://www.nuget.org/packages/LiteLink), an RPC framework with a compact binary serialization format for .NET servers. The client is fully handshake-driven: at connect time the server describes its types, functions and permissions, and the client builds its serializers from that description. It never needs to be regenerated or recompiled because the server's API changed.
 
 The client connects over SignalR, which makes it the browser-facing half of LiteLink; it also runs under Node.
